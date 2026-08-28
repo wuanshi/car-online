@@ -20,6 +20,9 @@ public class PassengerHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        if (Http.isPreflight(exchange)) {
+            return;
+        }
         if (Http.isMethod(exchange, "GET")) {
             list(exchange);
             return;

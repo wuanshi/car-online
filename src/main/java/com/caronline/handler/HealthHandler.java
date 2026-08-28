@@ -19,6 +19,9 @@ public class HealthHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        if (Http.isPreflight(exchange)) {
+            return;
+        }
         if (!Http.isMethod(exchange, "GET")) {
             Http.json(exchange, 405, Json.fail("只支持 GET"));
             return;

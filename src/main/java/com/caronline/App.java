@@ -1,6 +1,7 @@
 package com.caronline;
 
 import com.caronline.db.Db;
+import com.caronline.handler.DriverHandler;
 import com.caronline.handler.HealthHandler;
 import com.caronline.handler.PassengerHandler;
 import com.caronline.http.Http;
@@ -21,7 +22,7 @@ public class App {
     public static void main(String[] args) throws IOException {
         try {
             Db.init();
-            System.out.println("MySQL 已连接，passenger 表已就绪");
+            System.out.println("MySQL 已连接，数据表已就绪");
         } catch (SQLException e) {
             System.err.println("无法连接 MySQL，请检查：");
             System.err.println("  1. MySQL 服务是否启动");
@@ -34,6 +35,7 @@ public class App {
 
         server.createContext("/api/health", new HealthHandler());
         server.createContext("/api/passengers", new PassengerHandler());
+        server.createContext("/api/drivers", new DriverHandler());
         server.createContext("/", exchange -> {
             String path = exchange.getRequestURI().getPath();
             if ("/favicon.ico".equals(path)) {
@@ -44,7 +46,9 @@ public class App {
             String data = "["
                     + "{\"method\":\"GET\",\"path\":\"/api/health\",\"desc\":\"健康检查（含数据库）\"},"
                     + "{\"method\":\"GET\",\"path\":\"/api/passengers\",\"desc\":\"乘客列表\"},"
-                    + "{\"method\":\"POST\",\"path\":\"/api/passengers\",\"desc\":\"创建乘客\"}"
+                    + "{\"method\":\"POST\",\"path\":\"/api/passengers\",\"desc\":\"创建乘客\"},"
+                    + "{\"method\":\"GET\",\"path\":\"/api/drivers\",\"desc\":\"司机列表\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/drivers\",\"desc\":\"注册司机并绑车\"}"
                     + "]";
             Http.json(exchange, 200, Json.ok(data));
         });

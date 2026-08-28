@@ -14,10 +14,29 @@ public final class Http {
     private Http() {
     }
 
+    public static void applyCors(HttpExchange exchange) {
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+    }
+
+    /**
+     * 浏览器跨域 POST 会先发 OPTIONS。返回 true 表示已处理完，Handler 直接 return。
+     */
+    public static boolean isPreflight(HttpExchange exchange) throws IOException {
+        applyCors(exchange);
+        if (!isMethod(exchange, "OPTIONS")) {
+            return false;
+        }
+        exchange.sendResponseHeaders(204, -1);
+        exchange.close();
+        return true;
+    }
+
     public static void json(HttpExchange exchange, int status, String body) throws IOException {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        applyCors(exchange);
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
         exchange.sendResponseHeaders(status, bytes.length);
         try (OutputStream output = exchange.getResponseBody()) {
             output.write(bytes);

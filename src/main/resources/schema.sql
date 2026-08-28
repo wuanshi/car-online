@@ -13,3 +13,20 @@ CREATE TABLE IF NOT EXISTS passenger (
     phone      VARCHAR(20)  NOT NULL UNIQUE,
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS driver (
+    id         INT PRIMARY KEY AUTO_INCREMENT,
+    name       VARCHAR(50)  NOT NULL,
+    phone      VARCHAR(20)  NOT NULL UNIQUE,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS vehicle (
+    id         INT PRIMARY KEY AUTO_INCREMENT,
+    driver_id  INT          NOT NULL UNIQUE,
+    plate      VARCHAR(20)  NOT NULL UNIQUE,
+    brand      VARCHAR(50)  NOT NULL DEFAULT '',
+    color      VARCHAR(20)  NOT NULL DEFAULT '',
+    CONSTRAINT fk_vehicle_driver
+        FOREIGN KEY (driver_id) REFERENCES driver(id)
+);

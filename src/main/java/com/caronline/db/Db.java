@@ -40,7 +40,7 @@ public final class Db {
     }
 
     /**
-     * 启动时调用：确认能连上，并建好 passenger 表。
+     * 启动时调用：确认能连上，并建好当前用到的表。
      */
     public static void init() throws SQLException {
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
@@ -50,6 +50,25 @@ public final class Db {
                         name       VARCHAR(50)  NOT NULL,
                         phone      VARCHAR(20)  NOT NULL UNIQUE,
                         created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    )
+                    """);
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS driver (
+                        id         INT PRIMARY KEY AUTO_INCREMENT,
+                        name       VARCHAR(50)  NOT NULL,
+                        phone      VARCHAR(20)  NOT NULL UNIQUE,
+                        created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    )
+                    """);
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS vehicle (
+                        id         INT PRIMARY KEY AUTO_INCREMENT,
+                        driver_id  INT          NOT NULL UNIQUE,
+                        plate      VARCHAR(20)  NOT NULL UNIQUE,
+                        brand      VARCHAR(50)  NOT NULL DEFAULT '',
+                        color      VARCHAR(20)  NOT NULL DEFAULT '',
+                        CONSTRAINT fk_vehicle_driver
+                            FOREIGN KEY (driver_id) REFERENCES driver(id)
                     )
                     """);
         }

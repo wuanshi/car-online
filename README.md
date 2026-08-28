@@ -3,7 +3,7 @@
 打车学习项目。用 **JDK 自带的 HttpServer** 提供 HTTP 接口，**不引入 Spring**。  
 每一步都是加接口、用浏览器 / curl / Apifox 验证，顺带学 Java 的类、对象、集合、状态机。
 
-当前进度：**第 0 步已完成，已接入 MySQL（JDBC）**。
+当前进度：**第 1 步已完成（司机 / 车辆接口）**。
 
 ---
 
@@ -36,11 +36,30 @@ java -cp "target\classes;target\lib\*" com.caronline.App
 - http://localhost:8080/ —— 当前接口列表
 - http://localhost:8080/api/health —— 健康检查，`data.db` 应为 `"UP"`
 
+### 前端（React）
+
+另开一个终端：
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+打开 http://localhost:5173 ，页面里可以查看健康状态、新增/列出乘客和司机。开发时 Vite 把 `/api` 转到 8080，所以 Java 后端必须同时在跑。
+
 PowerShell 创建乘客：
 
 ```powershell
 Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/passengers -ContentType "application/json; charset=utf-8" -Body '{"name":"张三","phone":"13800000000"}'
 Invoke-RestMethod http://localhost:8080/api/passengers
+```
+
+注册司机（必须带车牌 `plate`）：
+
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/drivers -ContentType "application/json; charset=utf-8" -Body '{"name":"李四","phone":"13900000000","plate":"粤A12345","brand":"比亚迪","color":"白"}'
+Invoke-RestMethod http://localhost:8080/api/drivers
 ```
 
 ---
@@ -52,18 +71,23 @@ src/main/java/com/caronline/
 ├── App.java                 # main：先 Db.init()，再启动 HttpServer
 ├── db/
 │   ├── Db.java              # 读配置、拿 Connection、建表
-│   └── PassengerRepository.java  # 乘客的 INSERT / SELECT
+│   ├── PassengerRepository.java
+│   └── DriverRepository.java
 ├── handler/
 │   ├── HealthHandler.java
-│   └── PassengerHandler.java
+│   ├── PassengerHandler.java
+│   └── DriverHandler.java
 ├── http/
 │   ├── Http.java
 │   └── Json.java
 └── model/
-    └── Passenger.java
+    ├── Passenger.java
+    ├── Driver.java          # 持有 Vehicle
+    └── Vehicle.java
 src/main/resources/
 ├── db.properties            # JDBC 地址、账号、密码
 └── schema.sql               # 表结构对照
+frontend/                    # React 管理台（Vite）
 ```
 
 请求路径：
@@ -131,7 +155,7 @@ src/main/resources/
 
 ---
 
-## 第 1 步：司机与车辆接口
+## 第 1 步：司机与车辆接口（已完成）
 
 **要做什么**
 
@@ -141,13 +165,21 @@ src/main/resources/
 
 **学什么**
 
-- 一个司机对象里可以持有一个车辆对象
+- 一个司机对象里可以持有一个车辆对象（组合）
 - 接口路径按资源划分：`/passengers`、`/drivers`
+- 两张表一起写入时，用同一条 `Connection` + 事务，避免只写下司机、没写下车
 
 **完成标准**
 
-- [ ] POST 司机后 GET 能看到车牌
-- [ ] 缺少车牌时返回明确错误 JSON
+- [x] POST 司机后 GET 能看到车牌
+- [x] 缺少车牌时返回明确错误 JSON
+
+**接口示例**
+
+```
+POST /api/drivers
+{"name":"李四","phone":"13900000000","plate":"粤A12345","brand":"比亚迪","color":"白"}
+```
 
 ---
 
@@ -340,7 +372,7 @@ POST /api/orders/{id}/rating    {"stars":5,"comment":"好"}
 |------|------|------|
 | 0 | HttpServer、健康检查、乘客增/查 | 已完成 |
 | — | JDBC 连接 MySQL，乘客持久化 | 已完成 |
-| 1 | 司机、车辆接口 | 未开始 |
+| 1 | 司机、车辆接口 | 已完成 |
 | 2 | 按 id 查询 | 未开始 |
 | 3 | Service 拆分、校验 | 未开始 |
 | 4 | 订单与状态枚举 | 未开始 |
