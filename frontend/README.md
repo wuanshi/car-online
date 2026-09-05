@@ -16,3 +16,5 @@ npm run dev
 浏览器打开 http://localhost:5173
 
 开发时 `/api` 由 Vite 代理到 `http://localhost:8080`，不必改后端地址。
+
+乘客 / 司机页支持「按 ID 查询」，对应课程 **v5**：`GET /api/passengers/{id}`、`GET /api/drivers/{id}`。课程说明见仓库根目录 `README.md`。

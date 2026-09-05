@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { createPassenger, listPassengers } from '../api.js'
+import { createPassenger, getPassenger, listPassengers } from '../api.js'
 
 const empty = { name: '', phone: '' }
 
@@ -9,6 +9,8 @@ export default function Passengers() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [lookupId, setLookupId] = useState('')
+  const [detail, setDetail] = useState(null)
 
   async function load() {
     setError('')
@@ -72,6 +74,33 @@ export default function Passengers() {
         <button type="submit" disabled={saving}>
           {saving ? '提交中…' : '创建'}
         </button>
+      </form>
+
+      <form
+        className="panel form"
+        onSubmit={async (event) => {
+          event.preventDefault()
+          setError('')
+          setMessage('')
+          try {
+            setDetail(await getPassenger(lookupId.trim()))
+          } catch (e) {
+            setDetail(null)
+            setError(e.message)
+          }
+        }}
+      >
+        <h3>按 ID 查询（GET /api/passengers/{'{id}'}）</h3>
+        <label>
+          乘客 ID
+          <input value={lookupId} onChange={(e) => setLookupId(e.target.value)} placeholder="1" required />
+        </label>
+        <button type="submit">查询</button>
+        {detail && (
+          <p className="hint">
+            查到：#{detail.id} {detail.name} / {detail.phone}
+          </p>
+        )}
       </form>
 
       {message && <p className="banner ok">{message}</p>}

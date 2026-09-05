@@ -71,6 +71,41 @@ public final class Db {
                             FOREIGN KEY (driver_id) REFERENCES driver(id)
                     )
                     """);
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS ride_order (
+                        id            INT PRIMARY KEY AUTO_INCREMENT,
+                        passenger_id  INT           NOT NULL,
+                        driver_id     INT           NULL,
+                        origin        VARCHAR(100)  NOT NULL,
+                        destination   VARCHAR(100)  NOT NULL,
+                        distance_km   DECIMAL(10,2) NOT NULL,
+                        status        VARCHAR(32)   NOT NULL,
+                        fare          DECIMAL(10,2) NULL,
+                        paid          TINYINT       NOT NULL DEFAULT 0,
+                        created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_order_passenger FOREIGN KEY (passenger_id) REFERENCES passenger(id),
+                        CONSTRAINT fk_order_driver FOREIGN KEY (driver_id) REFERENCES driver(id)
+                    )
+                    """);
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS payment (
+                        id         INT PRIMARY KEY AUTO_INCREMENT,
+                        order_id   INT           NOT NULL UNIQUE,
+                        amount     DECIMAL(10,2) NOT NULL,
+                        created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_payment_order FOREIGN KEY (order_id) REFERENCES ride_order(id)
+                    )
+                    """);
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS rating (
+                        id         INT PRIMARY KEY AUTO_INCREMENT,
+                        order_id   INT          NOT NULL UNIQUE,
+                        stars      INT          NOT NULL,
+                        comment    VARCHAR(200) NOT NULL DEFAULT '',
+                        created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_rating_order FOREIGN KEY (order_id) REFERENCES ride_order(id)
+                    )
+                    """);
         }
     }
 }

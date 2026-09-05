@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 乘客表的增 / 查。SQL 写在这里，Handler 只负责 HTTP。
@@ -22,13 +23,37 @@ public class PassengerRepository {
              ResultSet rs = ps.executeQuery()) {
             List<Passenger> list = new ArrayList<>();
             while (rs.next()) {
-                list.add(new Passenger(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("phone")
-                ));
+                list.add(mapRow(rs));
             }
             return list;
+        }
+    }
+
+    /**
+     * 按主键查一条。查不到返回 {@link Optional#empty()}，避免返回 null。
+     */
+    public Optional<Passenger> findById(int id) throws SQLException {
+        String sql = "SELECT id, name, phone FROM passenger WHERE id = ?";
+        try (Connection conn = Db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return Optional.empty();
+                }
+                return Optional.of(mapRow(rs));
+            }
+        }
+    }
+
+    public boolean existsByPhone(String phone) throws SQLException {
+        String sql = "SELECT id FROM passenger WHERE phone = ?";
+        try (Connection conn = Db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         }
     }
 
@@ -46,5 +71,13 @@ public class PassengerRepository {
                 return new Passenger(keys.getInt(1), name, phone);
             }
         }
+    }
+
+    private static Passenger mapRow(ResultSet rs) throws SQLException {
+        return new Passenger(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("phone")
+        );
     }
 }

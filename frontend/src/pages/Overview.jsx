@@ -55,7 +55,8 @@ export default function Overview() {
       </div>
 
       <p className="hint">
-        前端跑在 5173，Java 后端跑在 8080。开发时 Vite 会把 <code>/api</code> 转发到后端。
+        完整流程：先在「乘客 / 司机」注册，再到「行程」发单、接单、走完状态机后支付评价。
+        前端 5173，后端 8080，开发时 <code>/api</code> 会转发到 Java。
       </p>
     </section>
   )

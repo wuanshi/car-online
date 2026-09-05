@@ -3,7 +3,9 @@ package com.caronline;
 import com.caronline.db.Db;
 import com.caronline.handler.DriverHandler;
 import com.caronline.handler.HealthHandler;
+import com.caronline.handler.OrderHandler;
 import com.caronline.handler.PassengerHandler;
+import com.caronline.handler.PaymentHandler;
 import com.caronline.http.Http;
 import com.caronline.http.Json;
 import com.sun.net.httpserver.HttpServer;
@@ -36,6 +38,8 @@ public class App {
         server.createContext("/api/health", new HealthHandler());
         server.createContext("/api/passengers", new PassengerHandler());
         server.createContext("/api/drivers", new DriverHandler());
+        server.createContext("/api/orders", new OrderHandler());
+        server.createContext("/api/payments", new PaymentHandler());
         server.createContext("/", exchange -> {
             String path = exchange.getRequestURI().getPath();
             if ("/favicon.ico".equals(path)) {
@@ -44,19 +48,30 @@ public class App {
                 return;
             }
             String data = "["
-                    + "{\"method\":\"GET\",\"path\":\"/api/health\",\"desc\":\"健康检查（含数据库）\"},"
-                    + "{\"method\":\"GET\",\"path\":\"/api/passengers\",\"desc\":\"乘客列表\"},"
-                    + "{\"method\":\"POST\",\"path\":\"/api/passengers\",\"desc\":\"创建乘客\"},"
-                    + "{\"method\":\"GET\",\"path\":\"/api/drivers\",\"desc\":\"司机列表\"},"
-                    + "{\"method\":\"POST\",\"path\":\"/api/drivers\",\"desc\":\"注册司机并绑车\"}"
+                    + "{\"method\":\"GET\",\"path\":\"/api/health\"},"
+                    + "{\"method\":\"GET\",\"path\":\"/api/passengers\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/passengers\"},"
+                    + "{\"method\":\"GET\",\"path\":\"/api/drivers\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/drivers\"},"
+                    + "{\"method\":\"GET\",\"path\":\"/api/orders\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/orders\"},"
+                    + "{\"method\":\"GET\",\"path\":\"/api/orders/{id}\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/orders/{id}/cancel\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/orders/{id}/accept\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/orders/{id}/arrive\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/orders/{id}/start\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/orders/{id}/finish\"},"
+                    + "{\"method\":\"GET\",\"path\":\"/api/orders/{id}/fare\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/orders/{id}/pay\"},"
+                    + "{\"method\":\"POST\",\"path\":\"/api/orders/{id}/rating\"},"
+                    + "{\"method\":\"GET\",\"path\":\"/api/payments\"}"
                     + "]";
             Http.json(exchange, 200, Json.ok(data));
         });
 
         server.start();
-        System.out.println("服务已启动（纯 Java HttpServer + JDBC）");
+        System.out.println("服务已启动（打车完整流程：发单 → 接单 → 行程 → 支付 → 评价）");
         System.out.println("接口列表  http://localhost:" + PORT + "/");
-        System.out.println("健康检查  http://localhost:" + PORT + "/api/health");
         System.out.println("按 Ctrl+C 停止");
     }
 }

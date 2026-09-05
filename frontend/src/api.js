@@ -39,6 +39,10 @@ export function createPassenger(body) {
   })
 }
 
+export function getPassenger(id) {
+  return request(`/api/passengers/${id}`)
+}
+
 export function listDrivers() {
   return request('/api/drivers')
 }
@@ -48,4 +52,36 @@ export function createDriver(body) {
     method: 'POST',
     body: JSON.stringify(body),
   })
+}
+
+export function getDriver(id) {
+  return request(`/api/drivers/${id}`)
+}
+
+export function listOrders(status) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : ''
+  return request(`/api/orders${query}`)
+}
+
+export function getOrder(id) {
+  return request(`/api/orders/${id}`)
+}
+
+export function createOrder(body) {
+  return request('/api/orders', { method: 'POST', body: JSON.stringify(body) })
+}
+
+export function postOrderAction(id, action, body) {
+  return request(`/api/orders/${id}/${action}`, {
+    method: 'POST',
+    body: JSON.stringify(body || {}),
+  })
+}
+
+export function getFare(id) {
+  return request(`/api/orders/${id}/fare`)
+}
+
+export function listPayments() {
+  return request('/api/payments')
 }

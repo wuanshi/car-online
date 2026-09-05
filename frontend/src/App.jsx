@@ -2,11 +2,13 @@ import { useState } from 'react'
 import Overview from './pages/Overview.jsx'
 import Passengers from './pages/Passengers.jsx'
 import Drivers from './pages/Drivers.jsx'
+import Orders from './pages/Orders.jsx'
 
 const TABS = [
   { id: 'overview', label: '概览' },
   { id: 'passengers', label: '乘客' },
   { id: 'drivers', label: '司机' },
+  { id: 'orders', label: '行程' },
 ]
 
 export default function App() {
@@ -34,6 +36,7 @@ export default function App() {
         {tab === 'overview' && <Overview />}
         {tab === 'passengers' && <Passengers />}
         {tab === 'drivers' && <Drivers />}
+        {tab === 'orders' && <Orders />}
       </main>
     </div>
   )

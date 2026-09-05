@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 司机 + 车辆。注册时两张表一起写，用同一条 Connection 保证同时成功或同时失败。
@@ -32,6 +33,48 @@ public class DriverRepository {
                 list.add(mapRow(rs));
             }
             return list;
+        }
+    }
+
+    public Optional<Driver> findById(int id) throws SQLException {
+        String sql = """
+                SELECT d.id, d.name, d.phone,
+                       v.id AS vehicle_id, v.plate, v.brand, v.color
+                FROM driver d
+                INNER JOIN vehicle v ON v.driver_id = d.id
+                WHERE d.id = ?
+                """;
+        try (Connection conn = Db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return Optional.empty();
+                }
+                return Optional.of(mapRow(rs));
+            }
+        }
+    }
+
+    public boolean existsByPhone(String phone) throws SQLException {
+        String sql = "SELECT id FROM driver WHERE phone = ?";
+        try (Connection conn = Db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean existsByPlate(String plate) throws SQLException {
+        String sql = "SELECT id FROM vehicle WHERE plate = ?";
+        try (Connection conn = Db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, plate);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         }
     }
 

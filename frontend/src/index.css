@@ -203,6 +203,41 @@ th {
   text-align: center;
 }
 
+tr.picked {
+  background: var(--accent-soft);
+}
+
+tr {
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.actions button {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+select {
+  font: inherit;
+  margin: 0 0 12px 8px;
+  padding: 6px 8px;
+}
+
 .banner {
   margin: 12px 0 0;
   padding: 10px 12px;
